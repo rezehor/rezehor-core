@@ -1,0 +1,24 @@
+# Rezehor Configuration
+
+ai:
+  model: "claude-sonnet-4-20250514"
+  max_tokens: 4096
+  temperature: 0.7
+
+screen_capture:
+  format: "PNG"
+  quality: 85
+
+memory:
+  database_path: "data/memory.db"
+  max_history: 100
+
+hotkeys:
+  activate: "ctrl+shift+r"
+  screenshot_analyze: "ctrl+shift+s"
+  quick_ask: "ctrl+shift+q"
+
+logging:
+  level: "INFO"
+  rotation: "500 MB"
+  retention: "10 days"
