@@ -1,6 +1,4 @@
-"""Claude API client for Rezehor."""
-
-from typing import AsyncIterator, Optional
+from typing import AsyncIterator, Optional, Any
 import base64
 from pathlib import Path
 
@@ -18,10 +16,8 @@ class AIClient:
         """Initialize AI client."""
         self.config = get_config()
 
-        # Synchronous client
         self.client = Anthropic(api_key=self.config.settings.anthropic_api_key)
 
-        # Async client for streaming
         self.async_client = AsyncAnthropic(
             api_key=self.config.settings.anthropic_api_key
         )
@@ -45,10 +41,8 @@ class AIClient:
         Returns:
             Claude's response text
         """
-        # Build message content
         content: list[Any] = []
 
-        # Add image if provided
         if image_path:
             logger.debug(f"Including image: {image_path}")
             with open(image_path, "rb") as f:
@@ -65,7 +59,6 @@ class AIClient:
                 }
             )
 
-        # Add text message
         content.append(
             {
                 "type": "text",
@@ -73,7 +66,6 @@ class AIClient:
             }
         )
 
-        # Make API call
         try:
             response: Message = self.client.messages.create(
                 model=self.config.ai.model,
@@ -92,7 +84,6 @@ class AIClient:
                 ],
             )
 
-            # Extract text from response - handle different content types
             result = ""
             for block in response.content:
                 if isinstance(block, TextBlock):
@@ -140,10 +131,7 @@ class AIClient:
             raise
 
 
-# Example usage
 if __name__ == "__main__":
-    from typing import Any  # Add this import at top
-
     client = AIClient()
     response = client.send_message("Hello! What can you help me with?")
     print(response)

@@ -1,5 +1,3 @@
-"""Configuration management for Rezehor."""
-
 from pathlib import Path
 from typing import Any
 from functools import lru_cache
@@ -13,7 +11,7 @@ from dotenv import load_dotenv
 class AIConfig(BaseModel):
     """AI model configuration."""
 
-    model: str = "claude-sonnet-4-20250514"
+    model: str = "claude-sonnet-4-5"
     max_tokens: int = 4096
     temperature: float = 0.7
 
@@ -61,20 +59,25 @@ class Settings(BaseSettings):
     )
 
 
+ROOT_DIR = Path(__file__).resolve().parents[3]
+DEFAULT_CONFIG_PATH = ROOT_DIR / "config" / "settings.yaml"
+
+
 class Config:
     """Main configuration class."""
 
-    def __init__(
-        self, config_path: Path = Path("config/settings.yaml")
-    ) -> None:
-        # Load environment variables
-        load_dotenv()
+    def __init__(self, config_path: Path = DEFAULT_CONFIG_PATH) -> None:
+        load_dotenv(ROOT_DIR / ".env")
 
-        # Load YAML config
+        if not config_path.exists():
+            raise FileNotFoundError(
+                f"Config file not found at: {config_path}\n"
+                f"Make sure you created 'config/settings.yaml' in the project root."
+            )
+
         with open(config_path) as f:
             config_data: dict[str, Any] = yaml.safe_load(f)
 
-        # Parse configurations
         self.ai = AIConfig(**config_data["ai"])
         self.screen_capture = ScreenCaptureConfig(
             **config_data["screen_capture"]
@@ -83,10 +86,8 @@ class Config:
         self.hotkeys = HotkeyConfig(**config_data["hotkeys"])
         self.logging = LoggingConfig(**config_data["logging"])
 
-        # Load environment settings
         self.settings = Settings()
 
-        # Ensure data directories exist
         self._setup_directories()
 
     def _setup_directories(self) -> None:

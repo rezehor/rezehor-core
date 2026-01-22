@@ -1,5 +1,3 @@
-"""Logging system for Rezehor."""
-
 from functools import wraps
 from typing import Callable, Any, TypeVar
 import sys
@@ -8,7 +6,6 @@ from loguru import logger
 
 from rezehor.utils.config import get_config
 
-# Type variable for generic function decorator
 T = TypeVar("T", bound=Callable[..., Any])
 
 
@@ -16,10 +13,8 @@ def setup_logger() -> None:
     """Initialize logging system."""
     config = get_config()
 
-    # Remove default handler
     logger.remove()
 
-    # Console handler with color
     logger.add(
         sys.stderr,
         format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan> - <level>{message}</level>",
@@ -27,7 +22,6 @@ def setup_logger() -> None:
         colorize=True,
     )
 
-    # File handler with rotation
     log_path = config.settings.data_dir / "logs" / "rezehor.log"
     logger.add(
         log_path,
@@ -35,7 +29,7 @@ def setup_logger() -> None:
         retention=config.logging.retention,
         level=config.logging.level,
         format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
-        enqueue=True,  # Thread-safe
+        enqueue=True,
     )
 
     logger.info("Logger initialized")
@@ -57,8 +51,7 @@ def log_execution(func: T) -> T:
             logger.error(f"{func.__name__} failed: {e}")
             raise
 
-    return wrapper  # type: ignore[return-value]
+    return wrapper
 
 
-# Export configured logger
 __all__ = ["logger", "setup_logger", "log_execution"]
